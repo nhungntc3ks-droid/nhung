@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="vi" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mô Phỏng An Toàn Giao Thông</title>
+  <script src="/_sdk/element_sdk.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .fade-in {
+      animation: fadeIn 0.5s ease-in;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .button-hover {
+      transition: all 0.3s ease;
+    }
+
+    .button-hover:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .prediction-box {
+      border-left: 4px solid #3b82f6;
+      transition: all 0.3s ease;
+    }
+
+    .prediction-box:hover {
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+    }
+
+    .video-container {
+      position: relative;
+      max-width: 700px;
+      margin: 0 auto;
+      background: #000;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    video {
+      width: 100%;
+      display: block;
+      max-height: 500px;
+    }
+
+    #overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.85);
+      color: white;
+      display: none;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 30px;
+      box-sizing: border-box;
+      z-index: 10;
+    }
+
+    #overlay.show {
+      display: flex;
+    }
+
+    .overlay-content {
+      max-width: 600px;
+    }
+
+    .overlay-content h2 {
+      font-size: 2rem;
+      margin-bottom: 20px;
+      color: #fbbf24;
+    }
+
+    .overlay-content p {
+      font-size: 1.2rem;
+      margin: 10px 0;
+      line-height: 1.6;
+    }
+  </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+ </head>
+ <body class="h-full">
+  <div class="w-full h-full bg-gradient-to-br from-blue-50 to-indigo-100 overflow-auto">
+   <div class="max-w-6xl mx-auto p-6"><!-- Header -->
+    <header class="text-center mb-8 fade-in">
+     <h1 id="mainTitle" class="text-4xl font-bold text-indigo-900 mb-3">⚠️ An Toàn Giao Thông</h1>
+     <p class="text-lg text-indigo-700">Dự đoán tình huống nguy hiểm - Nguy cơ xảy ra - Cách xử lý</p>
+    </header><!-- Video Section -->
+    <section class="bg-white rounded-2xl shadow-xl p-6 mb-6">
+     <h2 class="text-2xl font-bold text-indigo-900 mb-4">🎬 Tình Huống Video</h2>
+     <div class="video-container">
+      <video id="trafficVideo" controls><source src="video1.mp4" type="video/mp4"> Trình duyệt của bạn không hỗ trợ video.
+      </video><!-- Overlay for Discussion -->
+      <div id="overlay">
+       <div class="overlay-content">
+        <h2>⏸️ Thời Gian Thảo Luận</h2>
+        <p>• Tình huống nguy hiểm là gì?</p>
+        <p>• Ai đúng? Ai sai?</p>
+        <p>• Nếu là bạn, bạn nên làm gì để an toàn?</p><button id="continueBtn" class="mt-6 bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 px-8 rounded-xl button-hover"> ▶️ Tiếp Tục Video </button>
+       </div>
+      </div>
+     </div>
+     <div class="mt-4 text-sm text-gray-600">
+      <p><strong>Lưu ý:</strong> Video sẽ tự động dừng ở các thời điểm quan trọng để thảo luận.</p>
+     </div>
+    </section><!-- Learning Section -->
+    <section class="grid md:grid-cols-2 gap-6 mb-6"><!-- Prediction Questions -->
+     <div class="bg-white rounded-2xl shadow-xl p-6">
+      <h2 class="text-2xl font-bold text-indigo-900 mb-4">🤔 Câu Hỏi Dự Đoán</h2>
+      <div class="space-y-4">
+       <div class="prediction-box bg-blue-50 p-4 rounded-lg">
+        <h3 class="font-bold text-indigo-800 mb-2">1. Điều gì sẽ xảy ra?</h3><textarea id="prediction1" class="w-full p-3 border-2 border-indigo-200 rounded-lg focus:border-indigo-500 focus:outline-none" rows="3" placeholder="Viết dự đoán của bạn..."></textarea>
+       </div>
+       <div class="prediction-box bg-blue-50 p-4 rounded-lg">
+        <h3 class="font-bold text-indigo-800 mb-2">2. Tại sao tình huống này nguy hiểm?</h3><textarea id="prediction2" class="w-full p-3 border-2 border-indigo-200 rounded-lg focus:border-indigo-500 focus:outline-none" rows="3" placeholder="Viết lý do của bạn..."></textarea>
+       </div>
+       <div class="prediction-box bg-blue-50 p-4 rounded-lg">
+        <h3 class="font-bold text-indigo-800 mb-2">3. Ai có lỗi trong tình huống này?</h3>
+        <div class="space-y-2"><label class="flex items-center gap-2 cursor-pointer"> <input type="radio" name="fault" value="pedestrian" class="w-4 h-4"> <span>Người đi bộ</span> </label> <label class="flex items-center gap-2 cursor-pointer"> <input type="radio" name="fault" value="cyclist" class="w-4 h-4"> <span>Người đi xe đạp</span> </label> <label class="flex items-center gap-2 cursor-pointer"> <input type="radio" name="fault" value="both" class="w-4 h-4"> <span>Cả hai đều có lỗi</span> </label>
+        </div>
+       </div>
+      </div>
+     </div><!-- Safety Solutions -->
+     <div class="bg-white rounded-2xl shadow-xl p-6">
+      <h2 class="text-2xl font-bold text-red-600 mb-4">✅ Cách Xử Lý Đúng</h2>
+      <div class="space-y-4">
+       <div class="bg-green-50 p-4 rounded-lg border-l-4 border-green-500">
+        <h3 class="font-bold text-green-800 mb-2">🚴 Người đi xe đạp nên:</h3>
+        <ul class="list-disc list-inside space-y-2 text-gray-700">
+         <li>KHÔNG sử dụng điện thoại khi đi xe</li>
+         <li>Dừng lại khi đèn đỏ</li>
+         <li>Quan sát xung quanh trước khi qua đường</li>
+         <li>Giữ tốc độ an toàn</li>
+         <li>Tuân thủ luật giao thông</li>
+        </ul>
+       </div>
+       <div class="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500">
+        <h3 class="font-bold text-blue-800 mb-2">🚶 Người đi bộ nên:</h3>
+        <ul class="list-disc list-inside space-y-2 text-gray-700">
+         <li>Chỉ qua đường khi đèn xanh</li>
+         <li>Đi đúng vạch kẻ đường</li>
+         <li>Quan sát cả hai hướng</li>
+         <li>Không chạy qua đường đột ngột</li>
+         <li>Đảm bảo an toàn trước khi bước xuống lòng đường</li>
+        </ul>
+       </div>
+       <div class="bg-red-50 p-4 rounded-lg border-l-4 border-red-500">
+        <h3 class="font-bold text-red-800 mb-2" id="warningText">⚠️ Hậu Quả Nghiêm Trọng:</h3>
+        <ul class="list-disc list-inside space-y-2 text-gray-700">
+         <li>Chấn thương hoặc tử vong</li>
+         <li>Tổn thất tài chính</li>
+         <li>Ảnh hưởng tâm lý lâu dài</li>
+         <li>Trách nhiệm pháp lý</li>
+        </ul>
+       </div>
+      </div>
+     </div>
+    </section><!-- Statistics -->
+    <section class="bg-white rounded-2xl shadow-xl p-6">
+     <h2 class="text-2xl font-bold text-indigo-900 mb-4">📊 Thống Kê Tai Nạn Giao Thông</h2>
+     <div class="grid md:grid-cols-3 gap-4">
+      <div class="bg-red-50 p-6 rounded-xl text-center border-2 border-red-200">
+       <div class="text-4xl font-bold text-red-600 mb-2">
+        70%
+       </div>
+       <p class="text-gray-700">Tai nạn do mất tập trung</p>
+      </div>
+      <div class="bg-orange-50 p-6 rounded-xl text-center border-2 border-orange-200">
+       <div class="text-4xl font-bold text-orange-600 mb-2">
+        45%
+       </div>
+       <p class="text-gray-700">Liên quan đến điện thoại</p>
+      </div>
+      <div class="bg-yellow-50 p-6 rounded-xl text-center border-2 border-yellow-200">
+       <div class="text-4xl font-bold text-yellow-600 mb-2">
+        60%
+       </div>
+       <p class="text-gray-700">Vi phạm đèn giao thông</p>
+      </div>
+     </div>
+    </section>
+   </div>
+  </div>
+  <script>
+    const defaultConfig = {
+      title_text: "⚠️ An Toàn Giao Thông",
+      warning_message: "⚠️ Hậu Quả Nghiêm Trọng:",
+      video_url: "video1.mp4"
+    };
+
+    async function onConfigChange(config) {
+      const titleElement = document.getElementById('mainTitle');
+      const warningElement = document.getElementById('warningText');
+      const videoElement = document.getElementById('trafficVideo');
+      
+      titleElement.textContent = config.title_text || defaultConfig.title_text;
+      warningElement.textContent = config.warning_message || defaultConfig.warning_message;
+      
+      if (config.video_url && config.video_url !== videoElement.querySelector('source').src) {
+        videoElement.querySelector('source').src = config.video_url || defaultConfig.video_url;
+        videoElement.load();
+      }
+    }
+
+    function mapToCapabilities(config) {
+      return {
+        recolorables: [],
+        borderables: [],
+        fontEditable: undefined,
+        fontSizeable: undefined
+      };
+    }
+
+    function mapToEditPanelValues(config) {
+      return new Map([
+        ["title_text", config.title_text || defaultConfig.title_text],
+        ["warning_message", config.warning_message || defaultConfig.warning_message],
+        ["video_url", config.video_url || defaultConfig.video_url]
+      ]);
+    }
+
+    if (window.elementSdk) {
+      window.elementSdk.init({
+        defaultConfig,
+        onConfigChange,
+        mapToCapabilities,
+        mapToEditPanelValues
+      });
+    }
+
+    // Video Control Logic
+    const video = document.getElementById('trafficVideo');
+    const overlay = document.getElementById('overlay');
+    const continueBtn = document.getElementById('continueBtn');
+
+    // ⏱️ THỜI ĐIỂM DỪNG VIDEO (tính bằng giây)
+    const pausePoints = [5, 10, 15]; // Dừng ở giây thứ 5, 10, 15
+    let currentPauseIndex = 0;
+
+    video.addEventListener('timeupdate', function() {
+      if (currentPauseIndex < pausePoints.length) {
+        const pauseTime = pausePoints[currentPauseIndex];
+        if (video.currentTime >= pauseTime && !video.paused) {
+          video.pause();
+          overlay.classList.add('show');
+        }
+      }
+    });
+
+    continueBtn.addEventListener('click', function() {
+      overlay.classList.remove('show');
+      currentPauseIndex++;
+      video.play();
+    });
+
+    // Reset pause points when video ends or restarts
+    video.addEventListener('ended', function() {
+      currentPauseIndex = 0;
+    });
+
+    video.addEventListener('seeking', function() {
+      // Reset pause index if user seeks backward
+      for (let i = 0; i < pausePoints.length; i++) {
+        if (video.currentTime < pausePoints[i]) {
+          currentPauseIndex = i;
+          break;
+        }
+      }
+    });
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9adc6b68d611079e',t:'MTc2NTcwMTg2OS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
